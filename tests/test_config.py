@@ -8,7 +8,12 @@ save path so that breakage cannot silently return.
 from types import SimpleNamespace
 from unittest import mock
 
-from calendar_cli.config import config_section, interactive_config, read_config
+from calendar_cli.config import (
+    config_section,
+    expand_config_section,
+    interactive_config,
+    read_config,
+)
 
 
 def _fake_input(prompt=""):
@@ -46,3 +51,15 @@ class TestConfigSection:
         # inherited value is present, own value overrides the inherited one
         assert section["caldav_url"] == "https://example.com"
         assert section["caldav_user"] == "child"
+
+
+class TestExpandConfigSection:
+    def test_disabled_section_is_ignored(self):
+        config = {"work": {"disable": True}, "home": {}}
+        # '*' already ignored disabled sections; a direct reference must too
+        assert expand_config_section(config, "work") == []
+        assert expand_config_section(config, "home") == ["home"]
+
+    def test_enabled_section_is_returned(self):
+        config = {"work": {"disable": False}, "home": {}}
+        assert expand_config_section(config, "work") == ["work"]
