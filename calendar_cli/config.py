@@ -127,7 +127,7 @@ def expand_config_section(config, section='default', blacklist=None):
             return results
         else:
             ## Disabled sections should be ignored
-            if config.get('section', {}).get('disable', False):
+            if config.get(section, {}).get('disable', False):
                 return []
 
             ## NORMAL CASE - return [ section ]
